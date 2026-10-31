@@ -1,6 +1,6 @@
 # CodeRabbit mechanism selection
 
-Read this before drafting or tuning `.coderabbit.yaml`. Fetch the current live schema during every run; this file contains selection rules, not a frozen field catalog.
+Read this before drafting or tuning CodeRabbit configuration. Fetch the current live schema during every run; this file contains selection rules, not a frozen field catalog.
 
 ## Source hierarchy
 
@@ -12,6 +12,28 @@ Read this before drafting or tuning `.coderabbit.yaml`. Fetch the current live s
 6. Community configurations, including <https://github.com/coderabbitai/awesome-coderabbit>
 
 Use examples to discover candidates only. Validate every copied key against the live schema and every copied policy against the target repository.
+
+## Configuration formats
+
+Inspect both YAML suffixes and `.coderabbit.config.ts` before choosing a format. Committed YAML wins over TypeScript; CLI discovery also checks undotted YAML names. Preserve the effective source and its conditions. Do not delete a file or migrate formats just to activate another one without authorization.
+
+TypeScript supports context-driven configuration and shared fragments. Keep evaluation pure and preserve author gating. Its optional SDK supplies local types; use the repository's supported compiler rather than adding tooling by default. Verify evaluated output for relevant contexts as well as the source. `mergeConfig` concatenates arrays, unlike keyed inheritance merging, so repeated path rules can accumulate.
+
+[Official TypeScript configuration and validation](https://docs.coderabbit.ai/configuration/typescript-configuration)
+
+## Guideline scope
+
+Local guideline strings normally govern their containing directory and descendants. Use `{ files, applyTo }` when a document outside that tree governs specific source paths. Claude rules are auto-discovered with their `paths` scope; an explicit object mapping overrides that scope. Avoid repeating those documents in path instructions. Cross-repository sources require the platform's supported ownership/access boundary; do not assume access or add links merely for completeness.
+
+[Official code guideline scope](https://docs.coderabbit.ai/knowledge-base/code-guidelines)
+
+## Review completion and merge gates
+
+On the exact head, inspect check runs, legacy commit statuses, review outcomes, covered commits and unresolved findings. A green check can mean a skipped, rate-limited or failed review; `fail_commit_status` does not make skips or quota limits fail. A merge-queue success is not a review of that queue commit.
+
+For a real failed or skipped review, read the cause and use the supported recovery command when authorized; a full review can recover cases where a plain incremental request says the commit was already reviewed. Do not duplicate a running review, purchase allowance, weaken required checks or use administrator bypass. Local validation and a successful merge are separate evidence from runtime config propagation.
+
+[Official status-check semantics](https://docs.coderabbit.ai/pr-reviews/status-check)
 
 ## Mechanism matrix
 
@@ -55,7 +77,7 @@ Avoid global prompts such as "review for bugs, security, performance, style, and
 
 Use a custom check only when CodeRabbit's sandbox can decide from changed files, repository text, git history, PR metadata, linked issues, or configured MCP context. It cannot run the test suite, install dependencies, execute arbitrary repository code, inspect approval state, or post inline comments.
 
-Write one concern per check with explicit Pass, Fail, and Inconclusive conditions. Start in `warning`. Move to `error` only after representative warnings are correct and the repository intentionally uses the request-changes workflow.
+Authorized linked repository files may supply evidence. If an explicit source/ref is inaccessible, report Inconclusive rather than silently using another revision. Write one concern per check with explicit Pass, Fail, and Inconclusive conditions. Start in `warning`. Move to `error` only after representative warnings are correct and the repository intentionally uses the request-changes workflow.
 
 Official behavior and limitations: <https://docs.coderabbit.ai/pr-reviews/custom-checks>
 
