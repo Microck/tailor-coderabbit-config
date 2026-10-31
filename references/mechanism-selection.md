@@ -29,7 +29,7 @@ Local guideline strings normally govern their containing directory and descendan
 
 ## Review completion and merge gates
 
-On the exact head, inspect check runs, legacy commit statuses, review outcomes, covered commits and unresolved findings. A green check can mean a skipped, rate-limited or failed review; `fail_commit_status` does not make skips or quota limits fail. A merge-queue success is not a review of that queue commit.
+On the exact head, inspect check runs, legacy commit statuses, review outcomes, covered commits and unresolved findings. A green check can mean a skipped, rate-limited or failed review; `fail_commit_status` does not make skips or quota limits fail. A merge-queue success is not a review of that queue commit. Bind an authorized merge atomically to the reviewed head SHA; abort and revalidate if it has changed.
 
 For a real failed or skipped review, read the cause and use the supported recovery command when authorized; a full review can recover cases where a plain incremental request says the commit was already reviewed. Do not duplicate a running review, purchase allowance, weaken required checks or use administrator bypass. Local validation and a successful merge are separate evidence from runtime config propagation.
 

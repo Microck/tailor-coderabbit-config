@@ -11,7 +11,7 @@ A Codex skill that builds and calibrates a repository's CodeRabbit YAML or TypeS
 
 ## How it works
 
-Each run fetches the [live schema](https://coderabbit.ai/integrations/schema.v2.json), maps the repository (languages, trust boundaries, CI, linters, guideline docs, review history), and builds an evidence ledger so every non-default setting has to earn its place. It drafts the minimum config, validates YAML against the live schema or TypeScript through the supported compiler and evaluated output, then loops over representative reviews classifying results as signal, duplicate, false positive, miss, or noise. Mechanism selection, the path-instruction test, and the custom-check test live in [`references/mechanism-selection.md`](references/mechanism-selection.md).
+Each run fetches the [live schema](https://coderabbit.ai/integrations/schema.v2.json), maps the repository (languages, trust boundaries, CI, linters, guideline docs, review history), and builds an evidence ledger so every non-default setting has to earn its place. It drafts the minimum config, validates YAML against the live schema or TypeScript through the supported compiler and evaluated output, then, for Tune and Operate, loops over representative reviews classifying results as signal, duplicate, false positive, miss, or noise. Bootstrap and Audit can finish after validation; repositories without review history remain at Baseline. Mechanism selection, the path-instruction test, and the custom-check test live in [`references/mechanism-selection.md`](references/mechanism-selection.md).
 
 ## Install
 

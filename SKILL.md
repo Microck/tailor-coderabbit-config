@@ -136,7 +136,7 @@ Change the smallest mechanism that addresses the repeated pattern:
 
 Validate after every change. If the user authorized a live test, request a fresh review only when no equivalent review is already running for the current head. Keep unrelated PR state untouched. This skill does not grant merge authority; an explicitly authorized caller may merge its scoped configuration PR only after the real review and required checks are clean.
 
-Before an authorized merge, inspect both check runs and legacy commit statuses on the exact head, plus review outcomes and unresolved findings. Success, skipped or neutral can represent no review, a quota limit or a review error. Confirm what was reviewed; never relax protection or claim approval from a status badge alone. See the reference for retry and completion semantics.
+Before an authorized merge, record the reviewed head SHA and inspect both check runs and legacy commit statuses on that SHA, plus review outcomes and unresolved findings. Require the merge operation to atomically match that SHA to the current PR head and abort on mismatch; if the head changes, repeat validation and review for the new head. Success, skipped or neutral can represent no review, a quota limit or a review error. Confirm what was reviewed; never relax protection or claim approval from a status badge alone. See the reference for retry and completion semantics.
 
 Completion criterion: every sampled repeated pattern is classified and addressed or explicitly accepted, the final config validates, and the maturity label below is honest.
 
