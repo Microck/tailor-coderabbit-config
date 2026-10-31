@@ -1,6 +1,6 @@
 ---
 name: tailor-coderabbit-config
-description: Tailor, validate, and calibrate a repository's .coderabbit.yaml from codebase evidence and real review feedback. Use when creating, auditing, optimizing, or iterating CodeRabbit configuration, path instructions, path filters, code guidelines, review tools, auto-review behavior, inheritance, or pre-merge checks for a specific repository.
+description: Tailor, validate, and calibrate a repository's CodeRabbit YAML or TypeScript configuration from codebase evidence and real review feedback. Use when creating, auditing, optimizing, or iterating CodeRabbit configuration, path instructions, path filters, code guidelines, review tools, auto-review behavior, inheritance, or pre-merge checks for a specific repository.
 ---
 
 # Tailor CodeRabbit Config
@@ -9,7 +9,7 @@ Build a calibration, not a preset. Start with the smallest configuration justifi
 
 ## Select the branch
 
-- **Bootstrap**: Create `.coderabbit.yaml` where none exists.
+- **Bootstrap**: Create a configuration only after checking all supported formats and effective inherited policy. Preserve an existing format rather than masking or migrating it.
 - **Audit**: Check an existing file against the repository and current schema without changing it unless asked.
 - **Tune**: Change an existing file to address observed misses, noise, or workflow friction.
 - **Operate**: Inspect resolved configuration or run a review after the config is ready and the user authorized live PR interaction.
@@ -20,7 +20,7 @@ For every branch, read [mechanism-selection.md](references/mechanism-selection.m
 
 1. Read the repository's applicable agent instructions and development contract.
 2. Inspect version-control status before editing. Preserve unrelated work.
-3. Locate the existing `.coderabbit.yaml`, central configuration clues, CodeRabbit comments/checks, and repository ownership.
+3. Verify the active default branch, then locate `.coderabbit.yaml`, `.coderabbit.yml`, `.coderabbit.config.ts`, central configuration clues, CodeRabbit comments/checks, and ownership. For CLI use, also inspect its undotted YAML aliases. YAML takes precedence over TypeScript; never bootstrap YAML over an existing dynamic configuration. See the format rules in the reference.
 4. Fetch the current schema rather than trusting remembered fields or copied examples:
 
 ```bash
@@ -29,7 +29,7 @@ curl -L -sS -o /tmp/coderabbit-schema.v2.json \
 ```
 
 5. When a PR exists, inspect existing CodeRabbit reviews and configuration comments read-only. Post `@coderabbitai configuration` only when live PR interaction is in scope. On a third-party repository, require explicit permission before any CodeRabbit trigger.
-6. Treat the resolved configuration as the runtime truth. Repository YAML can be changed by central config, UI settings, inheritance, and global overrides.
+6. Treat resolved configuration as runtime truth. Account for UI/central policy, inheritance, global overrides and TypeScript context. A default-branch merge does not prove existing feature branches use the new config; inspect a relevant PR without modifying unrelated branches.
 
 Completion criterion: the active repository, applicable instructions, current config sources, ownership, and live schema are known, or each unavailable item is explicitly reported.
 
@@ -54,7 +54,7 @@ Completion criterion: every material subsystem and changed-file family has an ow
 
 ## 3. Create the evidence ledger
 
-Before writing YAML, produce this compact ledger in chat or a user-requested artifact:
+Before changing configuration, produce a compact evidence ledger in the requested report or PR description (or chat when appropriate):
 
 | Concern | Repository evidence | Existing enforcement | CodeRabbit mechanism | Decision |
 |---|---|---|---|---|
@@ -66,7 +66,7 @@ Completion criterion: every proposed non-default setting has repository evidence
 
 ## 4. Draft the minimum config
 
-Start with the schema directive:
+For YAML, start with the schema directive:
 
 ```yaml
 # yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
@@ -78,30 +78,34 @@ Then apply these rules:
 2. Set `inheritance` only after resolving the actual organization or central-config behavior.
 3. Use `path_filters` only for repository-specific generated, vendored, or irrelevant paths not already covered by CodeRabbit defaults. Confirm each glob against real paths.
 4. Use `path_instructions` for concrete, path-scoped review gaps. State observable failure conditions and repository-specific context. Avoid generic `**/*` advice that restates normal code review.
-5. Let CodeRabbit auto-detect standard guideline files. Add `knowledge_base.code_guidelines.filePatterns` only for additional standards files that truly apply as review criteria.
+5. Let CodeRabbit discover standard guideline files, including scoped Claude rules. Use `knowledge_base.code_guidelines.filePatterns` for additional authoritative documents; when they live outside the governed source tree, map `{ files, applyTo }` explicitly. Do not duplicate the same guidance in path instructions.
 6. Configure a review tool only when the repository contains relevant files and any required tool config. Do not enable every available tool for completeness.
 7. Use custom pre-merge checks for deterministic pass/fail repository invariants that CodeRabbit can inspect in its read-only sandbox. Start new checks in `warning`; promote to `error` only after calibration and only when request-changes behavior is understood.
 8. Match `auto_review` to the repository's real PR workflow. Exact bot usernames, labels, draft policy, branch regexes, and commit cadence must come from evidence.
 9. Keep `tone_instructions` about communication style. Put review criteria in the narrowest applicable mechanism.
 10. Preserve useful existing settings unless evidence shows they are stale, duplicated, or harmful.
 
-Completion criterion: the YAML contains only evidence-backed settings, every glob is deliberate, and no instruction has a narrower or more deterministic home.
+For TypeScript, preserve context-dependent author/branch policy and existing imports. Keep configuration evaluation pure; do not add remote includes, dependencies or cross-repository access without a concrete need and appropriate authorization.
+
+Completion criterion: the config contains only evidence-backed settings, every glob is deliberate, and no instruction has a narrower or more deterministic home.
 
 ## 5. Validate mechanically and semantically
 
-Run live-schema validation without adding dependencies to the repository:
+For YAML, set `config_path` to the effective file discovered above (respect the CLI discovery order when applicable), then validate that exact file without adding dependencies to the repository:
 
 ```bash
 uvx --from check-jsonschema==0.37.4 check-jsonschema \
   --schemafile https://coderabbit.ai/integrations/schema.v2.json \
-  .coderabbit.yaml
+  "${config_path:?Set config_path to the discovered effective YAML file}"
 ```
 
 If `uvx` is unavailable, use the repository's existing JSON-Schema-capable YAML validator or the official CodeRabbit YAML validator. Report any weaker validation path.
 
+For TypeScript, use the repository-supported compiler and existing SDK types when available, then validate the evaluated configuration against the current schema and relevant context cases. Do not feed TypeScript source to a YAML validator or treat type checking alone as runtime verification. Do not install the optional SDK into the repository solely for this skill.
+
 Then audit semantics:
 
-- `.coderabbit.yaml` is at the repository root;
+- the effective config is at the repository root, with format precedence and imported fragments understood;
 - every configured path, config file, username, label, and branch is verified;
 - instructions agree with repository contracts and do not duplicate stronger enforcement;
 - custom checks use information available in CodeRabbit's sandbox;
@@ -130,7 +134,9 @@ Change the smallest mechanism that addresses the repeated pattern:
 - tune `auto_review` for workflow noise;
 - prefer repository guideline files when the same rule should guide both coding agents and reviews.
 
-Validate after every change. If the user authorized a live test, request a fresh review only when no equivalent review is already running for the current head. Never merge, close, or modify unrelated PR state.
+Validate after every change. If the user authorized a live test, request a fresh review only when no equivalent review is already running for the current head. Keep unrelated PR state untouched. This skill does not grant merge authority; an explicitly authorized caller may merge its scoped configuration PR only after the real review and required checks are clean.
+
+Before an authorized merge, record the reviewed head SHA and inspect both check runs and legacy commit statuses on that SHA, plus review outcomes and unresolved findings. Require the merge operation to atomically match that SHA to the current PR head and abort on mismatch; if the head changes, repeat validation and review for the new head. Success, skipped or neutral can represent no review, a quota limit or a review error. Confirm what was reviewed; never relax protection or claim approval from a status badge alone. See the reference for retry and completion semantics.
 
 Completion criterion: every sampled repeated pattern is classified and addressed or explicitly accepted, the final config validates, and the maturity label below is honest.
 
@@ -145,3 +151,9 @@ Use one label:
 Never call a one-pass configuration perfect. State what evidence would move it to the next label.
 
 Finish with changed files, intentionally untouched areas, risks, validation commands/results, runtime verification status, and the maturity label. If editing left newly unused config or rule files, list them and ask before removal.
+
+## Maintain the skill when requested
+
+Compare relevant changes in the [official changelog](https://docs.coderabbit.ai/changelog), current configuration documentation and live schema with this skill. Update only guidance affected by verified changes; record source links and verification date in the PR, not daily no-op commits. Recheck examples and reference links. Do not enable a new product, paid scan, agentic fix or broader access merely because it was released.
+
+For an authorized multi-repository run, discover active owned repositories from meaningful owner activity and ongoing work, not mirror/bot timestamps alone. Recheck the actual default branch and active ownership for each; do not create an inactive `main` or duplicate an existing tuning PR. Apply the same evidence, validation and merge gates separately to each repository. An unchanged, still-valid configuration is a successful no-op.
