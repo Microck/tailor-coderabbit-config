@@ -91,12 +91,12 @@ Completion criterion: the config contains only evidence-backed settings, every g
 
 ## 5. Validate mechanically and semantically
 
-For YAML, run live-schema validation without adding dependencies to the repository:
+For YAML, set `config_path` to the effective file discovered above (respect the CLI discovery order when applicable), then validate that exact file without adding dependencies to the repository:
 
 ```bash
 uvx --from check-jsonschema==0.37.4 check-jsonschema \
   --schemafile https://coderabbit.ai/integrations/schema.v2.json \
-  .coderabbit.yaml
+  "${config_path:?Set config_path to the discovered effective YAML file}"
 ```
 
 If `uvx` is unavailable, use the repository's existing JSON-Schema-capable YAML validator or the official CodeRabbit YAML validator. Report any weaker validation path.
