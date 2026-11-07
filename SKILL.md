@@ -20,7 +20,7 @@ For every branch, read [mechanism-selection.md](references/mechanism-selection.m
 
 1. Read the repository's applicable agent instructions and development contract.
 2. Inspect version-control status before editing. Preserve unrelated work.
-3. Verify the active default branch, then locate `.coderabbit.yaml`, `.coderabbit.yml`, `.coderabbit.config.ts`, central configuration clues, CodeRabbit comments/checks, and ownership. For CLI use, also inspect its undotted YAML aliases and follow the documented first-found order. For hosted reviews with multiple YAML candidates, verify the effective source before choosing a file; do not assume CLI ordering applies. YAML takes precedence over TypeScript; never bootstrap YAML over an existing dynamic configuration. See the format rules in the reference.
+3. Verify the active default branch, then locate `.coderabbit.yaml`, `.coderabbit.yml`, `.coderabbit.config.ts`, central configuration clues, CodeRabbit comments/checks, and ownership. For local CLI reviews, inspect any explicitly supplied `--config` files first. Only when none are supplied, inspect the dotted and undotted YAML aliases using the documented first-found order. For hosted reviews with multiple YAML candidates, verify the effective source before choosing a file; do not assume CLI ordering applies. YAML takes precedence over TypeScript; never bootstrap YAML over an existing dynamic configuration. See the format rules in the reference.
 4. Fetch the current schema rather than trusting remembered fields or copied examples:
 
 ```bash
