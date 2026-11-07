@@ -105,7 +105,7 @@ For TypeScript, use the repository-supported compiler and existing SDK types whe
 
 Then audit semantics:
 
-- the effective config is at the repository root, with format precedence and imported fragments understood;
+- the effective source matches the invocation: hosted repository configuration is at its root; local CLI configuration is explicitly supplied or selected from the review directory/repository root by the documented discovery order, with format precedence and imported fragments understood;
 - every configured path, config file, username, label, and branch is verified;
 - instructions agree with repository contracts and do not duplicate stronger enforcement;
 - custom checks use information available in CodeRabbit's sandbox;
