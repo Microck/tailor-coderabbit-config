@@ -20,7 +20,7 @@ For every branch, read [mechanism-selection.md](references/mechanism-selection.m
 
 1. Read the repository's applicable agent instructions and development contract.
 2. Inspect version-control status before editing. Preserve unrelated work.
-3. Verify the active default branch, then locate `.coderabbit.yaml`, `.coderabbit.yml`, `.coderabbit.config.ts`, central configuration clues, CodeRabbit comments/checks, and ownership. For CLI use, also inspect its undotted YAML aliases. YAML takes precedence over TypeScript; never bootstrap YAML over an existing dynamic configuration. See the format rules in the reference.
+3. Verify the active default branch, then locate `.coderabbit.yaml`, `.coderabbit.yml`, `.coderabbit.config.ts`, central configuration clues, CodeRabbit comments/checks, and ownership. For CLI use, also inspect its undotted YAML aliases and follow the documented first-found order. For hosted reviews with multiple YAML candidates, verify the effective source before choosing a file; do not assume CLI ordering applies. YAML takes precedence over TypeScript; never bootstrap YAML over an existing dynamic configuration. See the format rules in the reference.
 4. Fetch the current schema rather than trusting remembered fields or copied examples:
 
 ```bash
@@ -118,7 +118,7 @@ Completion criterion: syntax and live schema pass, semantic checks pass, and res
 
 ## 6. Run the calibration loop
 
-For Tune or Operate work, inspect 3-5 representative reviewed PRs, or every available review when only 1-2 exist. With no review history, remain at Baseline. Classify each relevant CodeRabbit result:
+For Tune or Operate work, inspect 3-5 reviewed PRs whose changed files, workflow, or review outcomes cover the configuration behavior being tuned, or every such review when only 1-2 exist. If no such reviews exist, remain at Baseline. Classify each relevant CodeRabbit result:
 
 - **signal**: correct, novel, and actionable;
 - **duplicate**: already enforced or already reported elsewhere;
@@ -145,7 +145,7 @@ Completion criterion: every sampled repeated pattern is classified and addressed
 Use one label:
 
 - **Baseline**: repository-mapped and schema-valid, but not yet tested against representative CodeRabbit reviews.
-- **Calibrated**: at least three representative reviews, or every available review when only 1-2 exist, were triaged and every repeated config-driven pattern was handled.
+- **Calibrated**: at least three reviews covering the configuration behavior being tuned, or every such review when only 1-2 exist, were triaged and every repeated config-driven pattern was handled.
 - **Mature**: two subsequent review cycles across affected paths show no recurring config-driven false positives, and blocking checks have proven reliable in warning mode first.
 
 Never call a one-pass configuration perfect. State what evidence would move it to the next label.
