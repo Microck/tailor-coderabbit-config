@@ -49,6 +49,16 @@ For a real failed or skipped review, read the cause and use the supported recove
 | Share organization policy | central config and inheritance | known hierarchy and resolved source | setting `inheritance: true` by habit |
 | Supply cross-repository context | linked repositories | concrete dependency and access | linking loosely related repositories |
 
+## Risk-rating instructions
+
+Use `reviews.merge_risk_instructions` for evidence-backed merge-risk criteria, and `reviews.security_risk_instructions` for verified architecture facts that affect security risk. Both are strings limited to 3,000 characters. They shape ratings, not review comments or Security scan findings; keep finding criteria in path instructions, guidelines, or supported Security scan context.
+
+Merge-risk instructions can classify a changed area as risky even without a detected defect. Security-risk instructions apply only when a Security Architecture Review is produced under existing coverage (Advanced or Enterprise, or an eligible legacy trial/add-on). Do not infer coverage from a valid schema or a missing assessment.
+
+Inspect inherited risk policy before adding local text: repository text replaces organization text, while blank text preserves inherited instructions. PR descriptions and `@coderabbitai review --with-config` cannot override these fields. Do not invent low-risk exemptions or use these instructions to weaken approvals. Preserve approval thresholds and merge rules; changing them is a separate policy decision requiring authorization. Do not enable paid coverage as part of configuration maintenance.
+
+Official guidance: [Merge Risk](https://docs.coderabbit.ai/pr-reviews/merge-risk) and [Security Architecture Review](https://docs.coderabbit.ai/security/architecture-review).
+
 ## Path instruction test
 
 A path instruction earns its place only when all are true:
