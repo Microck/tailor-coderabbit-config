@@ -21,6 +21,15 @@ TypeScript supports context-driven configuration and shared fragments. Keep eval
 
 [Official TypeScript configuration and validation](https://docs.coderabbit.ai/configuration/typescript-configuration)
 
+## Repository-scoped Markdown rules
+
+Use [configuration directories](https://docs.coderabbit.ai/configuration/configuration-directory) when a review rule is easier to maintain next to its owning package. On CodeRabbit Cloud with GitHub Cloud, discovery is automatic; V2 users do not need a flag or a V3 migration. Keep review-trigger settings in the existing YAML, TypeScript, or UI source. Directory rules do not change source precedence and are loaded from the reviewed repository, not from central config. Check the revision allowed by the repository's source policy before expecting a PR to exercise a new rule.
+
+- Put guidance in `.coderabbit/instructions/` and custom checks in `.coderabbit/pre-merge-checks/`. Use regular lowercase-extension Markdown files with YAML front matter, a stable `id`, and a nonempty body when enabled. Use scope-relative patterns, no absolute or parent paths, and check the documented front-matter fields and limits for each kind. Start custom checks in warning mode and respect plan limits.
+- A directory under a package scopes its rules to that package. CodeRabbit chooses the nearest definition of the same kind and ID before testing path patterns: a narrower child rule can suppress the parent even for a path the child does not match. Use a distinct ID for additive guidance. Reject duplicate IDs of the same kind in one scope, even when filenames differ.
+- In V2, inline rules and directory rules can both apply. Move one definition at a time, preserve its scope and behavior, and avoid leaving an active duplicate. A directory check must not reuse the display name of an active inline check. Do not migrate an otherwise working config just to use this mechanism.
+- Validate every discovered file against the official directory rules separately from the settings schema. Test matching, excluded, sibling, and nested-override paths; verify the selected revision and actual review or check result before calling it calibrated.
+
 ## Guideline scope
 
 Local guideline strings normally govern their containing directory and descendants. Use `{ files, applyTo }` when a document outside that tree governs specific source paths. Claude rules are auto-discovered with their `paths` scope; an explicit object mapping overrides that scope. Avoid repeating those documents in path instructions. Cross-repository sources require the platform's supported ownership/access boundary; do not assume access or add links merely for completeness.
