@@ -40,6 +40,8 @@ Local guideline strings normally govern their containing directory and descendan
 
 On the exact head, inspect check runs, legacy commit statuses, review outcomes, covered commits and unresolved findings. A green check can mean a skipped, rate-limited or failed review; `fail_commit_status` does not make skips or quota limits fail. A merge-queue success is not a review of that queue commit. Bind an authorized merge atomically to the reviewed head SHA; abort and revalidate if it has changed.
 
+An approval can also exist without a completed review. The V2 setting `reviews.auto_approvals.approve_on_skipped_review` defaults to `false`. When automatic approvals are enabled, opting in can approve an intentionally skipped review (for example, a draft or file-limit skip), but does not cover review errors or cancellations. Existing findings, pre-merge checks, and configured risk limits still apply. Preserve the setting; never enable it as a recovery step or use an approval on a skipped review as evidence that the head was reviewed. See the [V2 configuration reference](https://docs.coderabbit.ai/reference/configuration).
+
 For a real failed or skipped review, read the cause and use the supported recovery command when authorized; a full review can recover cases where a plain incremental request says the commit was already reviewed. Do not duplicate a running review, purchase allowance, weaken required checks or use administrator bypass. Local validation and a successful merge are separate evidence from runtime config propagation.
 
 [Official status-check semantics](https://docs.coderabbit.ai/pr-reviews/status-check)
