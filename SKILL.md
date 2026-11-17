@@ -29,7 +29,7 @@ curl -L -sS -o /tmp/coderabbit-schema.v2.json \
 ```
 
 5. When a PR exists, inspect existing CodeRabbit reviews and configuration comments read-only. Post `@coderabbitai configuration` only when live PR interaction is in scope. On a third-party repository, require explicit permission before any CodeRabbit trigger.
-6. Treat resolved configuration as runtime truth. Account for UI/central policy, inheritance, global overrides and TypeScript context. A default-branch merge does not prove existing feature branches use the new config; inspect a relevant PR without modifying unrelated branches.
+6. Treat resolved configuration as runtime truth. Account for UI/central policy, inheritance, global overrides and TypeScript context. For GitHub Cloud YAML, inspect the separately configured repository source: Auto may read the PR branch; Default branch reads the latest default-branch YAML unless an enabled trusted-PR override applies; Custom reads the named branch and ignores PR edits. A missing or invalid selected source can fall back to Auto. Verify source mode, branch, file and commit in Review info and resolved values with `@coderabbitai configuration`; do not change the UI source without authorization. A default-branch merge alone does not prove propagation to existing PRs.
 
 Completion criterion: the active repository, applicable instructions, current config sources, ownership, and live schema are known, or each unavailable item is explicitly reported.
 
@@ -80,10 +80,11 @@ Then apply these rules:
 4. Use `path_instructions` for concrete, path-scoped review gaps. State observable failure conditions and repository-specific context. Avoid generic `**/*` advice that restates normal code review.
 5. Let CodeRabbit discover standard guideline files, including scoped Claude rules. Use `knowledge_base.code_guidelines.filePatterns` for additional authoritative documents; when they live outside the governed source tree, map `{ files, applyTo }` explicitly. Do not duplicate the same guidance in path instructions.
 6. Configure a review tool only when the repository contains relevant files and any required tool config. Do not enable every available tool for completeness.
-7. Use custom pre-merge checks for deterministic pass/fail repository invariants that CodeRabbit can inspect in its read-only sandbox. Start new checks in `warning`; promote to `error` only after calibration and only when request-changes behavior is understood.
-8. Match `auto_review` to the repository's real PR workflow. Exact bot usernames, labels, draft policy, branch regexes, and commit cadence must come from evidence.
-9. Keep `tone_instructions` about communication style. Put review criteria in the narrowest applicable mechanism.
-10. Preserve useful existing settings unless evidence shows they are stale, duplicated, or harmful.
+7. Docstring generation and the Docstring Coverage pre-merge check were retired; existing `docstrings` settings are ignored. Do not add or rely on them. Remove obsolete settings only when the cleanup is authorized and validated.
+8. Use custom pre-merge checks for deterministic pass/fail repository invariants that CodeRabbit can inspect in its read-only sandbox. Start new checks in `warning`; promote to `error` only after calibration and only when request-changes behavior is understood.
+9. Match `auto_review` to the repository's real PR workflow. Exact bot usernames, labels, draft policy, branch regexes, and commit cadence must come from evidence.
+10. Keep `tone_instructions` about communication style. Put review criteria in the narrowest applicable mechanism.
+11. Preserve useful existing settings unless evidence shows they are stale, duplicated, or harmful.
 
 For TypeScript, preserve context-dependent author/branch policy and existing imports. Keep configuration evaluation pure; do not add remote includes, dependencies or cross-repository access without a concrete need and appropriate authorization.
 
