@@ -21,7 +21,7 @@ For every branch, read [mechanism-selection.md](references/mechanism-selection.m
 1. Read the repository's applicable agent instructions and development contract.
 2. Inspect version-control status before editing. Preserve unrelated work.
 3. Verify the active default branch, then locate `.coderabbit.yaml`, `.coderabbit.yml`, `.coderabbit.config.ts`, central configuration clues, CodeRabbit comments/checks, and ownership. For local CLI reviews, inspect any explicitly supplied `--config` files first. Only when none are supplied, inspect the dotted and undotted YAML aliases using the documented first-found order. For hosted reviews with multiple YAML candidates, verify the effective source before choosing a file; do not assume CLI ordering applies. YAML takes precedence over TypeScript; never bootstrap YAML over an existing dynamic configuration. See the format rules in the reference.
-4. Fetch the current schema rather than trusting remembered fields or copied examples:
+4. Fetch the live schema for the effective configuration version rather than trusting remembered fields or copied examples. V2 is the default for YAML. Use the [V3 authoring schema](https://docs.coderabbit.ai/schema/schema.v3.json) only for an existing numeric `version: 3` YAML file in an organization confirmed to have V3 repository-file access; do not migrate as part of routine tuning. For V2:
 
 ```bash
 curl -L -sS -o /tmp/coderabbit-schema.v2.json \
@@ -66,13 +66,13 @@ Completion criterion: every proposed non-default setting has repository evidence
 
 ## 4. Draft the minimum config
 
-For YAML, start with the schema directive:
+For V2 YAML, start with the schema directive below. For an existing, supported V3 file, use the V3 schema URL instead. The directive does not change the runtime version.
 
 ```yaml
 # yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
 ```
 
-Then apply these rules:
+Then apply these rules using the effective version's documented mechanisms. The YAML setting names below are V2; for V3, use the V3 reference for moved settings and the supported configuration directories for review instructions and custom checks.
 
 1. Omit schema defaults unless the explicit value documents an intentional policy or protects against inherited settings.
 2. Set `inheritance` only after resolving the actual organization or central-config behavior.
@@ -92,7 +92,7 @@ Completion criterion: the config contains only evidence-backed settings, every g
 
 ## 5. Validate mechanically and semantically
 
-For YAML, set `config_path` to the effective file discovered above (respect the CLI discovery order when applicable), then validate that exact file without adding dependencies to the repository:
+For YAML, set `config_path` to the effective file discovered above (respect the CLI discovery order when applicable), then validate that exact file without adding dependencies to the repository. This example uses V2; substitute the V3 authoring schema URL for an existing, supported V3 file:
 
 ```bash
 uvx --from check-jsonschema==0.37.4 check-jsonschema \
