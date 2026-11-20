@@ -34,6 +34,10 @@ Use [configuration directories](https://docs.coderabbit.ai/configuration/configu
 
 Local guideline strings normally govern their containing directory and descendants. Use `{ files, applyTo }` when a document outside that tree governs specific source paths. Claude rules are auto-discovered with their `paths` scope; an explicit object mapping overrides that scope. Avoid repeating those documents in path instructions. Cross-repository sources require the platform's supported ownership/access boundary; do not assume access or add links merely for completeness.
 
+Before adding instructions, check what CodeRabbit already reads as Agent Skills. A supported agent directory at the repository root (`.agents`, `.claude`, `.codex`, `.cursor`, `.gemini`, or `.github`) can contain `skills/<name>/SKILL.md`. CodeRabbit discovers those files automatically and can apply their guidance repository-wide, not just under the skill folder. Use the PR review summary to see which guideline files reached that review. Verify the effective source-path patterns under Knowledge Base → Code Guidelines in the CodeRabbit UI before duplicating or narrowing rules.
+
+Do not assume a plain `skills/` publishing directory or a skill nested within a package is auto-discovered. When the content is authoritative for review, use an explicit `filePatterns` object with `{ files, applyTo }` for package-scoped guidance; avoid making a published workflow into a repository-wide review rule by default. Central-only configuration does not read the reviewed repository’s own skills; if a local file is warranted, preserve applicable central policy through supported inheritance. Reviews of PRs that edit a skill can use its new content, so keep independent checks and do not treat the skill as a merge gate.
+
 [Official code guideline scope](https://docs.coderabbit.ai/knowledge-base/code-guidelines)
 
 ## Review completion and merge gates
