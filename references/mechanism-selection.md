@@ -5,8 +5,8 @@ Read this before drafting or tuning CodeRabbit configuration. Fetch the current 
 ## Source hierarchy
 
 1. Resolved configuration from `@coderabbitai configuration`
-2. Live authoring schema for the effective version: [V2](https://coderabbit.ai/integrations/schema.v2.json) by default; [V3](https://docs.coderabbit.ai/schema/schema.v3.json) for an existing numeric `version: 3` YAML file with confirmed V3 repository-file access.
-3. Current official configuration reference: [V2](https://docs.coderabbit.ai/reference/configuration) or [V3 preview](https://docs.coderabbit.ai/reference/configuration-v3), as applicable.
+2. Live authoring schema for the effective version: [V2](https://coderabbit.ai/integrations/schema.v2.json) by default; [V3](https://docs.coderabbit.ai/schema/schema.v3.json) for a root YAML or exported TypeScript configuration with numeric `version: 3` on hosted GitHub Cloud reviews in CodeRabbit Cloud.
+3. Current official configuration reference: [V2](https://docs.coderabbit.ai/reference/configuration) or [V3](https://docs.coderabbit.ai/reference/configuration-v3), as applicable.
 4. Repository contracts, code, CI, and review history
 5. Official examples: <https://docs.coderabbit.ai/configuration/example>
 6. Community configurations, including <https://github.com/coderabbitai/awesome-coderabbit>
@@ -20,6 +20,8 @@ Inspect both YAML suffixes and `.coderabbit.config.ts` before choosing a format.
 TypeScript supports context-driven configuration and shared fragments. Keep evaluation pure and preserve author gating. Its optional SDK supplies local types; use the repository's supported compiler rather than adding tooling by default. Verify evaluated output for relevant contexts as well as the source. `mergeConfig` concatenates arrays, unlike keyed inheritance merging, so repeated path rules can accumulate.
 
 [Official TypeScript configuration and validation](https://docs.coderabbit.ai/configuration/typescript-configuration)
+
+For hosted GitHub Cloud reviews in CodeRabbit Cloud, the repository file selects its own version: omit `version` or use numeric `2` for V2; use numeric `3` to opt into V3. This does not enroll the organization’s web settings editor or alter its saved settings. Central configuration files, other Git hosting platforms, and self-hosted CodeRabbit continue to use V2. Do not opt into V3 during routine tuning. An authorized migration must map moved keys and check replacement gates for any built-in title, description, or issue-assessment check that V3 disables. See the [official migration guide](https://docs.coderabbit.ai/configuration/guides/migrate-to-v3).
 
 ## Repository-scoped Markdown rules
 
@@ -44,7 +46,7 @@ Do not assume a plain `skills/` publishing directory or a skill nested within a 
 
 On the exact head, inspect check runs, legacy commit statuses, review outcomes, covered commits and unresolved findings. A green check can mean a skipped, rate-limited or failed review; `fail_commit_status` does not make skips or quota limits fail. A merge-queue success is not a review of that queue commit. Bind an authorized merge atomically to the reviewed head SHA; abort and revalidate if it has changed.
 
-For organizations in the V3 preview, distinguish a missing progress report from a missing review. An explicit `reviews.behavior.status.progress_updates: false` without `legacy_commit_status` in that layer suppresses both formats, subject to global overrides, even if a parent supplied the legacy setting. An explicitly enabled legacy setting can still take effect at runtime when it survives inheritance and overrides, but the V3 authoring schema rejects that deprecated key. If GitHub requires the CodeRabbit report, preserve progress reporting and verify the report name and app on a real review before relying on the gate. V2 keeps its separate progress and commit-status controls; do not migrate or change branch rules to recover a missing report. See the [official V3 progress guidance](https://docs.coderabbit.ai/guides/migrate-configuration-v3#progress-reporting).
+For reviews using V3, distinguish a missing progress report from a missing review. An explicit `reviews.behavior.status.progress_updates: false` without `legacy_commit_status` in that layer suppresses both formats, subject to global overrides, even if a parent supplied the legacy setting. An explicitly enabled legacy setting can still take effect at runtime when it survives inheritance and overrides, but the V3 authoring schema rejects that deprecated key. If GitHub requires the CodeRabbit report, preserve progress reporting and verify the report name and app on a real review before relying on the gate. V2 keeps its separate progress and commit-status controls; do not migrate or change branch rules to recover a missing report. See the [official V3 progress guidance](https://docs.coderabbit.ai/configuration/guides/migrate-to-v3#progress-reporting).
 
 An approval can also exist without a completed review. The V2 setting `reviews.auto_approvals.approve_on_skipped_review` defaults to `false`. When automatic approvals are enabled, opting in can approve an intentionally skipped review (for example, a draft or file-limit skip), but does not cover review errors or cancellations. Existing findings, pre-merge checks, and configured risk limits still apply. Preserve the setting; never enable it as a recovery step or use an approval on a skipped review as evidence that the head was reviewed. See the [V2 configuration reference](https://docs.coderabbit.ai/reference/configuration).
 
